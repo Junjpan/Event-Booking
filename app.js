@@ -4,7 +4,9 @@ const PORT = process.env.PORT || 5000;
 const graphQLHTTP = require("express-graphql");
 const mongoose = require("mongoose");
 const { buildSchema } = require("graphql");
+const bcrypt = require("bcryptjs");
 const Event = require("./models/event");
+const User = require("./models/user");
 
 const app = express();
 require("dotenv").config();
@@ -23,9 +25,20 @@ app.use(
         description:String!
         price:Float!
         date:String!
+        creator:User!
     }
     
+    type User {
+        _id:ID!
+        email:String!
+        password:String
+        createEvent:[Event!]!
+      }
     
+    input UserInput{
+        email:String!
+        password:String!
+    }  
     input EventInput {
         title:String!
         description:String!
@@ -35,9 +48,11 @@ app.use(
 
     type RootQuery{
         events: [Event!]!
+        users:[User!]!
     }
     type RootMutation{
         createEvent(eventInput:EventInput):Event
+        createUser(userInput:UserInput):User
     }
 
     schema{
@@ -50,16 +65,18 @@ app.use(
     rootValue: {
       events: () => {
         return Event.find({})
-                    .then(events=>{
-                        return events
-                        /**
-                         * since return data has mongoose medatata attached it, if you want to leave out the mongoose's attached metadatea,you should do this way
-                         * return events.map((event)=>{
-                         * return {...event._doc,_id:result._doc._id.toString()}})//because mongodb's ObjectId format
-                         * you also can do return {...event._doc,_id:event.id}
-                         */
-                    })
-                    .catch(err=>{throw err})
+          .then((events) => {
+            return events;
+            /**
+             * since return data has mongoose medatata attached it, if you want to leave out the mongoose's attached metadatea,you should do this way
+             * return events.map((event)=>{
+             * return {...event._doc,_id:result._doc._id.toString()}})//because mongodb's ObjectId format
+             * you also can do return {...event._doc,_id:event.id}
+             */
+          })
+          .catch((err) => {
+            throw err;
+          });
       },
       createEvent: (args) => {
         //console.log(args);
@@ -68,17 +85,54 @@ app.use(
           description: args.eventInput.description,
           price: +args.eventInput.price,
           date: new Date(args.eventInput.date),
+          creator: "5ec74d15d4f707249cc169b8",
         });
-
-    return  event
+        
+        var newEvent;
+        return event
           .save()
-          .then(result=>{console.log(result) ;return result;}) //you also return {...result._doc}
+          .then((result) => {
+            newEvent=result  ////also can be   {...result._doc}
+            return User.findById("5ec74d15d4f707249cc169b8");
+          })
+          .then(user=>{
+            if(!user){
+              throw new Error ('User no found!')
+            }
+          user.createEvents.push(newEvent._id) //mongoose method
+          return user.save()
+          })
+          .then((result)=>{
+            return newEvent
+          })
           .catch((err) => {
             console.log(err);
-            throw err
+            throw err;
           });
-         
-        
+      },
+
+      createUser: (args) => {
+        return User.findOne({ email: args.userInput.email })
+          .then((user) => {
+            if (user) {
+              throw new Error("User exists already");
+            }
+            return bcrypt.hash(args.userInput.password, 12);
+          })
+          .then((hashPassword) => {
+            const user = new User({
+              email: args.userInput.email,
+              password: hashPassword,
+            });
+
+            return user.save(); //return to make sure async
+          })
+          .then((result) => {
+            return { ...result._doc, password: null };
+          }) //don't want to return password,to be abel to do this, we have to do ...result._doc
+          .catch((err) => {
+            throw err;
+          });
       },
     },
     graphiql: true,
