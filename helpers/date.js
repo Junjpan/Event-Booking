@@ -1,0 +1,1 @@
+exports.dateTOString=(date)=>new Date(date).toDateString();
