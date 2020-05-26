@@ -1,5 +1,8 @@
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const User = require("../../models/user");
+
+require("dotenv").config;
 
 module.exports = {
   createUser: (args) => {
@@ -24,5 +27,25 @@ module.exports = {
       .catch((err) => {
         throw err;
       });
-  }
+  },
+  //name has to match to respectively schema's name
+  login: async ({ email, password }) => {
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw new Error("User does not exist!");
+    }
+
+    const isEqual = await bcrypt.compare(password, user.password);
+    if (!isEqual) {
+      throw new Error("Password is incorrect!");
+    }
+
+    const token = jwt.sign(
+      { userId: (await user).id, email: user.email },
+      process.env.TOKEN,
+      {expiresIn: "1h"}
+    );
+
+    return {userId:user.id,token,tokenExpiration:1 }
+  },
 };

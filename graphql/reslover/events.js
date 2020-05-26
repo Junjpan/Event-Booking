@@ -28,14 +28,17 @@ module.exports = {
         });
     },
   
-    createEvent: (args) => {
+    createEvent: (args,req) => {
       //console.log(args);
+      if(!req.isAuth){
+        throw new Error('Unauthenticated')
+      }
       const event = new Event({
         title: args.eventInput.title,
         description: args.eventInput.description,
         price: +args.eventInput.price,
         date: new Date(args.eventInput.date),
-        creator: "5ec74d15d4f707249cc169b8",
+        creator: req.userId,
       });
   
       var newEvent;
@@ -43,7 +46,7 @@ module.exports = {
         .save()
         .then((result) => {
           newEvent = transfromEvent(result); ////also can be   {...result._doc}
-          return User.findById("5ec74d15d4f707249cc169b8");
+          return User.findById(req.userId);
         })
         .then((user) => {
           if (!user) {
