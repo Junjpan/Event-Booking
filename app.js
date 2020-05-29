@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const schema=require("./graphql/schema/index");
 const rootResolver=require("./graphql/reslover/index")
 const isAuth=require('./middleware/is-auth');
+const cors=require('cors');
 
 const app = express();
 require("dotenv").config();
@@ -13,6 +14,17 @@ require("dotenv").config();
 //{"env:{"MONGO_USER":"...","MONGO_PASSWORD"}"}, and you can acess the vriable like process.env.MOGO_USER
 
 app.use(bodyParser.json());
+app.use(cors())
+/**
+app.use((req,res,next)=>{
+  res.setHeader('Access-Control-Allow-Origin','*');
+  res.setHeader('Access-Control-Allow-Methods','POST,GET,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers','Content-Type,Authorization');
+  if(req.method==='OPTIONS'){
+    return res.sendStatus(200)
+  }
+  next()
+})   //allow access cross origin act like app.use(cors())*/
 
 app.use(isAuth)
 app.use(
