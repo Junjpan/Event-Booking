@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import "./Auth.css";
+import AuthContext from "../context/auth-context";
 
 class AuthPage extends Component {
   constructor(props) {
@@ -10,6 +11,8 @@ class AuthPage extends Component {
       isLogin: true,
     };
   }
+  
+  static contextType=AuthContext //only used in class component-contextType
 
   login = () => {
     this.setState({ isLogin: !this.state.isLogin });
@@ -62,12 +65,20 @@ class AuthPage extends Component {
       },
     })
       .then((res) => {
-        if (res.status !== 200 && res.status !== 201) {
+        
+          if (res.status !== 200 && res.status !== 201) {
           throw new Error("Failed!");
         }
+         
         return res.json();
       })
-      .then((res) => console.log(res)) //res.data if you are sucess fetch data, otherwise receive error message from res.errors
+      .then((res) => 
+      { 
+        console.log(res);
+        if(res.data.login.token){
+        this.context.login(res.data.login.userId,res.data.login.token,res.data.login.tokenExpiration)
+      }
+        }) //res.data if you are sucess fetch data, otherwise receive error message from res.errors
       .catch((err) => {
         console.log(err);
       });
