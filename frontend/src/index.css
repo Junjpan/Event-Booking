@@ -4,4 +4,39 @@ body {
   font-family:"sans-serif";
 }
 
+.form-control label,
+.form-control input{
+    width:100%;
+    display:block;
+    height:2rem;
+}
+
+.form-control label{
+    margin-bottom: 0.5rem;
+}
+
+.form-control{
+    margin-bottom: 1rem;
+}
+
+.form-action button
+.btn{
+    background:rgb(153, 77, 89);
+    font:inherit;
+    border:1px solid white;
+    border-radius: 3px;
+    padding:0.5rem 1rem;
+    margin-right:1rem;
+    box-shadow: 1px 1px 5px rgba(0,0,0,0.5);
+    color:white;
+    cursor:pointer
+}
+
+.form-action button:hover,
+.form-action button:active,
+.btn:hover,
+.btn:active{
+    background:gray;
+    border-color:black;
+}
 

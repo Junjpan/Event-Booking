@@ -22,18 +22,28 @@
     display:flex;
     list-style-type: none;
     padding:0;
-    margin:0
+    margin:0;
+    align-items:center;
 }
 
 .main-naviagation_item li{
   margin: 1rem 1rem;
 }
 
-.main-naviagation_item a{
+.main-naviagation_item a,
+.main-navigation_item button
+{
  text-decoration: none;
  color:white;
  font-size:1rem;
+ border:none;
+ font:inherit;
+ background:transparent;
+ cursor:pointer;
+
 }
+
+.main-navigation_item button:hover,
 .main-naviagation_item a:hover{
 color:gray
 }
