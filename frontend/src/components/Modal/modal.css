@@ -1,10 +1,11 @@
 .modal{
-    width:80%;
+    width:60%;
     background:rgb(214, 211, 211);
     box-shadow: 0 2px 8px rgba(0,0,0,0.26);
     position:fixed;
     top:20vh;
-    left:10%
+    left:20%;
+    z-index:100;
 }
 
 .modal_header{

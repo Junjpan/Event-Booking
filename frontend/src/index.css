@@ -1,3 +1,5 @@
+@import './pages/event.css';
+
 body {
   margin: 0;
   padding:0;
@@ -5,10 +7,10 @@ body {
 }
 
 .form-control label,
-.form-control input{
+.form-control input,
+.form-control textarea{
     width:100%;
     display:block;
-    height:2rem;
 }
 
 .form-control label{
@@ -19,7 +21,7 @@ body {
     margin-bottom: 1rem;
 }
 
-.form-action button
+.form-action button,
 .btn{
     background:rgb(153, 77, 89);
     font:inherit;
