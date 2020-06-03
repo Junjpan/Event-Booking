@@ -1,9 +1,18 @@
+const DataLoader=require('dataloader');
 const Event=require("../../models/event");
 const User = require("../../models/user");
 const {dateTOString}=require("../../helpers/date")
-const mongoose=require('mongoose')
+const mongoose=require('mongoose');
 
-const events = (eventids) => {
+const eventLoader=new DataLoader((eventIds)=>{
+  return events(eventIds)
+})
+
+const userLoader=new DataLoader((userIds)=>{
+  return User.find({_id:{$in:userIds}});
+})
+
+const events =  (eventids) => {
     //console.log("eventids " + eventids);
     return Event.find({ _id: { $in: eventids } })
       .then((events) => {
@@ -18,18 +27,23 @@ const events = (eventids) => {
   
   const singleEvent = async (eventId) => {
     try {
-      const event = await Event.findById(eventId);
-      return transfromEvent(event); //or event.creator
+     //use eventLoader
+     const event=await eventLoader.load(eventId.toString())
+      // const event = await Event.findById(eventId);
+      return event; 
     } catch (err) {
       throw err;
     }
   };
   const user = (userid) => {
-    return User.findById(userid)
+    //return User.findById(userid)
+  return userLoader.load(userid.toString())
       .then((user) => {
         return {
           ...user._doc,
-          createEvents: events.bind(this, user._doc.createEvents),
+         // createEvents: events.bind(this, user._doc.createEvents),
+         //instead we use eventLoader
+         createEvents:eventLoader.load.bind(this,user._doc.createEvents) 
         };
       })
       .catch((err) => {

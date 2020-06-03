@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import AuthContext from "../context/auth-context";
 import Spinner from "../components/Spinner/spinner";
+import BookingList from '../components/Bookings/BookingList/Bookinglist';
 
 class BookingPage extends Component {
   state = {
@@ -9,6 +10,37 @@ class BookingPage extends Component {
   };
 
   static contextType = AuthContext;
+
+  cancelEvent=(bookingId)=>{
+    const cancelBooking={
+      query:`mutation{
+        cancelBooking(bookingId:"${bookingId}"){
+          _id
+          title
+        }
+      }`
+    }
+
+    fetch('http://localhost:5000/graphql',{
+      method:"POST",
+      body:JSON.stringify(cancelBooking),
+      headers:{
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + this.context.token,
+      }
+    }).then(res=>res.json())
+      .then(resdata=>{console.log(resdata);
+        this.setState(prevState=>{
+          const updatedBookings=prevState.bookings.filter(booking=>{
+            return booking._id!==bookingId
+          })
+          return {bookings:updatedBookings,isLoading:false}
+        })
+      this.fetchBookings()})
+      .catch(err=>console.log(err))
+
+  }
+
 
   componentDidMount() {
     this.fetchBookings();
@@ -62,15 +94,7 @@ class BookingPage extends Component {
         {this.state.isLoading ? (
           <Spinner />
         ) : (
-          <ul>
-            {this.state.bookings.map((booking) => {
-              return (
-                <li key={booking._id}>
-                  {booking.event.title} - {booking.createdAt}
-                </li>
-              );
-            })}
-          </ul>
+         <BookingList bookings={this.state.bookings} cancelEvent={this.cancelEvent}/>
         )}
       </React.Fragment>
     );
