@@ -43,7 +43,7 @@ const events =  (eventids) => {
           ...user._doc,
          // createEvents: events.bind(this, user._doc.createEvents),
          //instead we use eventLoader
-         createEvents:eventLoader.load.bind(this,user._doc.createEvents) 
+         createEvents:()=>eventLoader.loadMany(user._doc.createEvents)
         };
       })
       .catch((err) => {

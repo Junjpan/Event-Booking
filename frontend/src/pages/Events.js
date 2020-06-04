@@ -82,9 +82,10 @@ class EventPage extends Component {
     const description = this.descriptionRef.current.value;
 
     const requestBody = {
+      //type need to match up the backend server's schema type
       query: `
-      mutation{
-        createEvent(eventInput:{title:"${title}",date:"${date}",price:${price},description:"${description}"}){
+      mutation CreateEvent($title:String!,$date:String!,$price:Float!,$desc:String!){
+        createEvent(eventInput:{title:$title,date:$date,price:$price,description:$desc}){
         _id
         title
         description
@@ -93,6 +94,13 @@ class EventPage extends Component {
       }
     }
       `,
+
+      variables:{
+        title:title,
+        date:date,
+        desc:description,
+        price:price
+      }
     };
 
     fetch("http://localhost:5000/graphql", {
@@ -149,14 +157,17 @@ if(!this.context.token){
 }
     const bookEvent = {
       query: `
-      mutation{
-        bookEvent(eventId:"${this.state.selectedEvent._id}"){
+      mutation BookEvent($id:ID!){
+        bookEvent(eventId:$id){
           _id
           createdAt
           updatedAt
         }
       }
       `,
+      variables:{
+        id:this.state.selectedEvent._id
+      }
     };
 
     fetch("http://localhost:5000/graphql", {
@@ -209,6 +220,7 @@ if(!this.context.token){
                     type='number'
                     id='Price'
                     ref={this.priceRef}
+                    step="0.01"
                     required
                   />
                 </div>

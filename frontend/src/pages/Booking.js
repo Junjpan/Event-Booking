@@ -12,13 +12,26 @@ class BookingPage extends Component {
   static contextType = AuthContext;
 
   cancelEvent=(bookingId)=>{
-    const cancelBooking={
+/** another way without variables specify
+ * const cancelBooking={
       query:`mutation{
         cancelBooking(bookingId:"${bookingId}"){
           _id
           title
         }
       }`
+ */
+
+    const cancelBooking={
+      query:`mutation CancelBooking($id:ID!){
+        cancelBooking(bookingId:$id){
+          _id
+          title
+        }
+      }`,
+      variables:{
+        id:bookingId
+      }
     }
 
     fetch('http://localhost:5000/graphql',{

@@ -11,8 +11,8 @@ class AuthPage extends Component {
       isLogin: true,
     };
   }
-  
-  static contextType=AuthContext //only used in class component-contextType
+
+  static contextType = AuthContext; //only used in class component-contextType
 
   login = () => {
     this.setState({ isLogin: !this.state.isLogin });
@@ -34,16 +34,20 @@ class AuthPage extends Component {
     if (!this.state.isLogin) {
       requestBody = {
         query: `
-      mutation{
-        createUser(userInput:{email:"${email}",password:"${password}"}){
+      mutation CreateUser($email:String!,$password:String!){
+        createUser(userInput:{email:$email,password:$password}){
           _id
           email
         }
       }
       `,
+        variables: {
+          email: email,
+          password: password
+        },
       };
     } else {
-      requestBody = {
+      /** requestBody = {
         query: `
       query{
         login(email:"${email}",password:"${password}"){
@@ -53,6 +57,23 @@ class AuthPage extends Component {
 
       }
       `,
+      };
+       * 
+       */
+      requestBody = {
+        query: `
+      query Login ($email:String!,$password:String!){
+        login(email:$email,password:$password){
+          userId
+          token
+          tokenExpiration}
+
+      }
+      `,
+        variables: {
+          email: email,
+          password: password,
+        },
       };
     }
     //login(email:String!,password:String!):AuthData!
@@ -65,20 +86,22 @@ class AuthPage extends Component {
       },
     })
       .then((res) => {
-        
-          if (res.status !== 200 && res.status !== 201) {
+        if (res.status !== 200 && res.status !== 201) {
           throw new Error("Failed!");
         }
-         
+
         return res.json();
       })
-      .then((res) => 
-      { 
+      .then((res) => {
         console.log(res);
-        if(res.data.login.token){
-        this.context.login(res.data.login.userId,res.data.login.token,res.data.login.tokenExpiration)
-      }
-        }) //res.data if you are sucess fetch data, otherwise receive error message from res.errors
+        if (res.data.login.token) {
+          this.context.login(
+            res.data.login.userId,
+            res.data.login.token,
+            res.data.login.tokenExpiration
+          );
+        }
+      }) //res.data if you are sucess fetch data, otherwise receive error message from res.errors
       .catch((err) => {
         console.log(err);
       });
