@@ -16,6 +16,9 @@ const events =  (eventids) => {
     //console.log("eventids " + eventids);
     return Event.find({ _id: { $in: eventids } })
       .then((events) => {
+      return  events.sort((a,b)=>{
+          return eventids.indexOf(a._id.toString())-eventids.indexOf(b._id.toString())
+        });
         return events.map((event) => {
           return transfromEvent(event); //use the below user function
         });
