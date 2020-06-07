@@ -2,11 +2,14 @@ import React, { Component } from "react";
 import AuthContext from "../context/auth-context";
 import Spinner from "../components/Spinner/spinner";
 import BookingList from '../components/Bookings/BookingList/Bookinglist';
+import BookingChart from '../components/Bookings/BookingChart/BookingChart';
+import BookingControl from "../components/Bookings/BookingControl/BookingControl";
 
 class BookingPage extends Component {
   state = {
     isLoading: false,
     bookings: [],
+    outPutType:"List"
   };
 
   static contextType = AuthContext;
@@ -101,14 +104,31 @@ class BookingPage extends Component {
       });
   };
 
+  changeListDisplay=outPutType=>{
+
+    if(outPutType==='List'){
+      this.setState({outPutType:"List"})
+    }else{
+      this.setState({outPutType:"Chart"})
+    }
+  }
+
   render() {
+    let content=<Spinner />;
+    if(!this.state.isLoading){
+      content=( <React.Fragment>
+        <BookingControl changeListDisplay={this.changeListDisplay} outPutType={this.state.outPutType}  />
+        <div>
+          {this.state.outPutType==="List"?<BookingList bookings={this.state.bookings} cancelEvent={this.cancelEvent}/>
+          :<BookingChart bookings={this.state.bookings} />}
+        </div>
+       
+      </React.Fragment>)
+    }
+
     return (
       <React.Fragment>
-        {this.state.isLoading ? (
-          <Spinner />
-        ) : (
-         <BookingList bookings={this.state.bookings} cancelEvent={this.cancelEvent}/>
-        )}
+       {content}
       </React.Fragment>
     );
   }
